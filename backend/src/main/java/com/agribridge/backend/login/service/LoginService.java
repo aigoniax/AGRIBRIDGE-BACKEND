@@ -1,0 +1,34 @@
+package com.agribridge.backend.login.service;
+
+import com.agribridge.backend.login.data.LoginRequest;
+import com.agribridge.backend.login.data.LoginResponse;
+import com.agribridge.backend.repository.User;
+import com.agribridge.backend.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+
+@Service
+public class LoginService {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
+
+    public LoginResponse login(LoginRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElse(null);
+
+        if (user == null) {
+            return new LoginResponse(false, "Invalid email or password", null, null);
+        }
+
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            return new LoginResponse(false, "Invalid email or password", null, null);
+        }
+
+        return new LoginResponse(true, "Login successful", user.getFullName(), user.getEmail());
+    }
+}
