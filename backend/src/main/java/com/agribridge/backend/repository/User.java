@@ -38,4 +38,10 @@ public class User {
     public void setPhone(String phone) { this.phone = phone; }
     public void setLocation(String location) { this.location = location; }
     public void setRole(String role) { this.role = role; }
+
+    @Column(columnDefinition = "bytea")
+    private byte[] photo;
+
+    public byte[] getPhoto() { return photo; }
+    public void setPhoto(byte[] photo) { this.photo = photo; }
 }
