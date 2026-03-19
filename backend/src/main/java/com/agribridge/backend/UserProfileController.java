@@ -79,11 +79,12 @@ public class UserProfileController {
         if (optUser.isEmpty())
             return ResponseEntity.notFound().build();
 
-        User user = optUser.get();
-        if (body.containsKey("fullName")) user.setFullName(body.get("fullName"));
-        if (body.containsKey("phone")) user.setPhone(body.get("phone"));
-        if (body.containsKey("location")) user.setLocation(body.get("location"));
-        userRepository.save(user);
+        userRepository.updateProfile(
+                email,
+                body.getOrDefault("fullName", optUser.get().getFullName()),
+                body.getOrDefault("phone", optUser.get().getPhone()),
+                body.getOrDefault("location", optUser.get().getLocation())
+        );
 
         return ResponseEntity.ok(Map.of("message", "Profile updated successfully"));
     }
@@ -137,9 +138,7 @@ public class UserProfileController {
         if (optUser.isEmpty())
             return ResponseEntity.notFound().build();
 
-        User user = optUser.get();
-        user.setPhoto(file.getBytes());
-        userRepository.save(user);
+        userRepository.updatePhoto(email, file.getBytes());
 
         return ResponseEntity.ok(Map.of("message", "Photo uploaded successfully"));
     }
