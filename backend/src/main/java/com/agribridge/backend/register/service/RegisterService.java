@@ -1,5 +1,6 @@
 package com.agribridge.backend.register.service;
 
+import com.agribridge.backend.EmailService;
 import com.agribridge.backend.register.data.RegisterRequest;
 import com.agribridge.backend.register.data.RegisterResponse;
 import com.agribridge.backend.repository.User;
@@ -16,6 +17,9 @@ public class RegisterService {
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
+
+    @Autowired
+    private EmailService emailService;
 
     public RegisterResponse register(RegisterRequest request) {
         if (!request.getPassword().equals(request.getConfirmPassword())) {
@@ -34,6 +38,9 @@ public class RegisterService {
         user.setLocation(request.getLocation());
         user.setRole(request.getRole());
         userRepository.save(user);
+
+        // Send pending approval email
+        emailService.sendRegistrationPending(user.getEmail(), user.getFullName());
 
         return new RegisterResponse(true, "Registration successful", user.getFullName(), user.getEmail());
     }
