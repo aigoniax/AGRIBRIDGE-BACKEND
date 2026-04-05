@@ -22,6 +22,10 @@ public class User {
     private String phone;
     private String location;
     private String role;
+    private String status;
+
+    @Column(columnDefinition = "bytea")
+    private byte[] photo;
 
     public Long getId() { return id; }
     public String getFullName() { return fullName; }
@@ -30,6 +34,8 @@ public class User {
     public String getPhone() { return phone; }
     public String getLocation() { return location; }
     public String getRole() { return role; }
+    public String getStatus() { return status; }
+    public byte[] getPhoto() { return photo; }
 
     public void setId(Long id) { this.id = id; }
     public void setFullName(String fullName) { this.fullName = fullName; }
@@ -38,10 +44,6 @@ public class User {
     public void setPhone(String phone) { this.phone = phone; }
     public void setLocation(String location) { this.location = location; }
     public void setRole(String role) { this.role = role; }
-
-    @Column(columnDefinition = "bytea")
-    private byte[] photo;
-
-    public byte[] getPhoto() { return photo; }
+    public void setStatus(String status) { this.status = status; }
     public void setPhoto(byte[] photo) { this.photo = photo; }
 }

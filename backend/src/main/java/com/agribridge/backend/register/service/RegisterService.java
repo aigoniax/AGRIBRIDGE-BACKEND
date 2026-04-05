@@ -37,9 +37,16 @@ public class RegisterService {
         user.setPhone(request.getPhone());
         user.setLocation(request.getLocation());
         user.setRole(request.getRole());
+
+        // BUYERS are auto-approved, FARMERS need admin approval
+        if ("BUYER".equalsIgnoreCase(request.getRole())) {
+            user.setStatus("APPROVED");
+        } else {
+            user.setStatus("PENDING");
+        }
+
         userRepository.save(user);
 
-        // Send pending approval email
         emailService.sendRegistrationPending(user.getEmail(), user.getFullName());
 
         return new RegisterResponse(true, "Registration successful", user.getFullName(), user.getEmail());
