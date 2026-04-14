@@ -3,7 +3,7 @@ package com.agribridge.backend.register.service;
 import com.agribridge.backend.EmailService;
 import com.agribridge.backend.register.data.RegisterRequest;
 import com.agribridge.backend.register.data.RegisterResponse;
-import com.agribridge.backend.repository.User;
+import com.agribridge.backend.model.User;
 import com.agribridge.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;

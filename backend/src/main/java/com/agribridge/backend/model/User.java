@@ -1,4 +1,4 @@
-package com.agribridge.backend.repository;
+package com.agribridge.backend.model;
 
 import jakarta.persistence.*;
 

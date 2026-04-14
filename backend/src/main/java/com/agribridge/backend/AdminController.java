@@ -1,7 +1,7 @@
 package com.agribridge.backend;
 
-import com.agribridge.backend.repository.User;
 import com.agribridge.backend.repository.UserRepository;
+import com.agribridge.backend.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,7 +39,11 @@ public class AdminController {
         }
         user.setStatus("APPROVED");
         userRepository.save(user);
-        emailService.sendRegistrationApproved(user.getEmail(), user.getFullName());
+
+        // Send email in background so it doesn't slow down the response
+        String email = user.getEmail();
+        String name = user.getFullName();
+        new Thread(() -> emailService.sendRegistrationApproved(email, name)).start();
 
         Map<String, String> response = new HashMap<>();
         response.put("message", "Farmer approved successfully");
@@ -57,7 +61,11 @@ public class AdminController {
         }
         user.setStatus("REJECTED");
         userRepository.save(user);
-        emailService.sendRegistrationRejected(user.getEmail(), user.getFullName());
+
+        // Send email in background so it doesn't slow down the response
+        String email = user.getEmail();
+        String name = user.getFullName();
+        new Thread(() -> emailService.sendRegistrationRejected(email, name)).start();
 
         Map<String, String> response = new HashMap<>();
         response.put("message", "Farmer rejected successfully");
