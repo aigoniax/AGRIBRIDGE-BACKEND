@@ -1,6 +1,6 @@
 package com.agribridge.backend;
 
-import com.agribridge.backend.repository.User;
+import com.agribridge.backend.model.User;
 import com.agribridge.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

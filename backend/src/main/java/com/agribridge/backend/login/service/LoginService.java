@@ -3,7 +3,7 @@ package com.agribridge.backend.login.service;
 import com.agribridge.backend.JwtUtil;
 import com.agribridge.backend.login.data.LoginRequest;
 import com.agribridge.backend.login.data.LoginResponse;
-import com.agribridge.backend.repository.User;
+import com.agribridge.backend.model.User;
 import com.agribridge.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
