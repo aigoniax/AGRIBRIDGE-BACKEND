@@ -4,13 +4,15 @@ import com.agribridge.backend.JwtUtil;
 import com.agribridge.backend.listing.data.ListingRequest;
 import com.agribridge.backend.listing.data.ListingResponse;
 import com.agribridge.backend.model.Listing;
-import com.agribridge.backend.repository.ListingRepository;
 import com.agribridge.backend.model.User;
+import com.agribridge.backend.repository.ListingRepository;
 import com.agribridge.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.List;
 
 @Service
@@ -25,6 +27,24 @@ public class ListingService {
     @Autowired
     private JwtUtil jwtUtil;
 
+    // Convert photo bytes to base64 string
+    private String toBase64(byte[] photo) {
+        if (photo == null) return null;
+        return "data:image/png;base64," + Base64.getEncoder().encodeToString(photo);
+    }
+
+    // Attach farmer info and photo base64 to listing
+    private void enrichListing(Listing listing) {
+        userRepository.findById(listing.getFarmerId()).ifPresent(farmer -> {
+            listing.setFarmerName(farmer.getFullName());
+            listing.setFarmerPhone(farmer.getPhone());
+            listing.setFarmerLocation(farmer.getLocation());
+        });
+        if (listing.getPhoto() != null) {
+            listing.setPhotoBase64(toBase64(listing.getPhoto()));
+        }
+    }
+
     // Get all active listings
     public ListingResponse getAllListings(String search, String category) {
         List<Listing> listings;
@@ -35,17 +55,18 @@ public class ListingService {
         } else {
             listings = listingRepository.findAllActive();
         }
-
-        // Attach farmer info to each listing
-        for (Listing listing : listings) {
-            userRepository.findById(listing.getFarmerId()).ifPresent(farmer -> {
-                listing.setFarmerName(farmer.getFullName());
-                listing.setFarmerPhone(farmer.getPhone());
-                listing.setFarmerLocation(farmer.getLocation());
-            });
-        }
-
+        listings.forEach(this::enrichListing);
         return new ListingResponse(true, "Listings fetched successfully", listings);
+    }
+
+    // Get single listing by ID
+    public ListingResponse getListingById(Long id) {
+        Listing listing = listingRepository.findById(id).orElse(null);
+        if (listing == null || listing.getDeletedAt() != null) {
+            return new ListingResponse(false, "Listing not found", null);
+        }
+        enrichListing(listing);
+        return new ListingResponse(true, "Listing fetched successfully", listing);
     }
 
     // Get listings by farmer
@@ -56,11 +77,12 @@ public class ListingService {
             return new ListingResponse(false, "User not found", null);
         }
         List<Listing> listings = listingRepository.findByFarmerId(farmer.getId());
+        listings.forEach(this::enrichListing);
         return new ListingResponse(true, "Listings fetched successfully", listings);
     }
 
     // Create listing
-    public ListingResponse createListing(String token, ListingRequest request) {
+    public ListingResponse createListing(String token, ListingRequest request, MultipartFile photo) {
         String email = jwtUtil.extractEmail(token);
         User farmer = userRepository.findByEmail(email).orElse(null);
 
@@ -80,12 +102,21 @@ public class ListingService {
         listing.setAdditionalNotes(request.getAdditionalNotes());
         listing.setStatus("AVAILABLE");
 
+        if (photo != null && !photo.isEmpty()) {
+            try {
+                listing.setPhoto(photo.getBytes());
+            } catch (Exception e) {
+                return new ListingResponse(false, "Failed to upload photo", null);
+            }
+        }
+
         listingRepository.save(listing);
+        enrichListing(listing);
         return new ListingResponse(true, "Listing created successfully", listing);
     }
 
     // Update listing
-    public ListingResponse updateListing(String token, Long id, ListingRequest request) {
+    public ListingResponse updateListing(String token, Long id, ListingRequest request, MultipartFile photo) {
         String email = jwtUtil.extractEmail(token);
         User farmer = userRepository.findByEmail(email).orElse(null);
         Listing listing = listingRepository.findById(id).orElse(null);
@@ -106,7 +137,16 @@ public class ListingService {
         listing.setPickupLocation(request.getPickupLocation());
         listing.setAdditionalNotes(request.getAdditionalNotes());
 
+        if (photo != null && !photo.isEmpty()) {
+            try {
+                listing.setPhoto(photo.getBytes());
+            } catch (Exception e) {
+                return new ListingResponse(false, "Failed to upload photo", null);
+            }
+        }
+
         listingRepository.save(listing);
+        enrichListing(listing);
         return new ListingResponse(true, "Listing updated successfully", listing);
     }
 

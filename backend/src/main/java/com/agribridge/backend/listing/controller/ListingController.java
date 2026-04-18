@@ -6,6 +6,7 @@ import com.agribridge.backend.listing.service.ListingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/listings")
@@ -23,6 +24,12 @@ public class ListingController {
         return ResponseEntity.ok(listingService.getAllListings(search, category));
     }
 
+    // GET single listing by ID
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getListingById(@PathVariable Long id) {
+        return ResponseEntity.ok(listingService.getListingById(id));
+    }
+
     // GET farmer's own listings
     @GetMapping("/my-listings")
     public ResponseEntity<?> getMyListings(
@@ -31,13 +38,33 @@ public class ListingController {
         return ResponseEntity.ok(listingService.getMyListings(token));
     }
 
-    // POST create new listing
+    // POST create new listing with photo
     @PostMapping
     public ResponseEntity<?> createListing(
             @RequestHeader("Authorization") String authHeader,
-            @RequestBody ListingRequest request) {
+            @RequestParam("produceName") String produceName,
+            @RequestParam("category") String category,
+            @RequestParam("quantity") Double quantity,
+            @RequestParam("unit") String unit,
+            @RequestParam("price") Double price,
+            @RequestParam("freshness") String freshness,
+            @RequestParam("pickupLocation") String pickupLocation,
+            @RequestParam(value = "additionalNotes", required = false) String additionalNotes,
+            @RequestParam(value = "photo", required = false) MultipartFile photo) {
+
         String token = authHeader.replace("Bearer ", "");
-        return ResponseEntity.ok(listingService.createListing(token, request));
+
+        ListingRequest request = new ListingRequest();
+        request.setProduceName(produceName);
+        request.setCategory(category);
+        request.setQuantity(quantity);
+        request.setUnit(unit);
+        request.setPrice(price);
+        request.setFreshness(freshness);
+        request.setPickupLocation(pickupLocation);
+        request.setAdditionalNotes(additionalNotes);
+
+        return ResponseEntity.ok(listingService.createListing(token, request, photo));
     }
 
     // PUT update listing
@@ -45,9 +72,29 @@ public class ListingController {
     public ResponseEntity<?> updateListing(
             @RequestHeader("Authorization") String authHeader,
             @PathVariable Long id,
-            @RequestBody ListingRequest request) {
+            @RequestParam("produceName") String produceName,
+            @RequestParam("category") String category,
+            @RequestParam("quantity") Double quantity,
+            @RequestParam("unit") String unit,
+            @RequestParam("price") Double price,
+            @RequestParam("freshness") String freshness,
+            @RequestParam("pickupLocation") String pickupLocation,
+            @RequestParam(value = "additionalNotes", required = false) String additionalNotes,
+            @RequestParam(value = "photo", required = false) MultipartFile photo) {
+
         String token = authHeader.replace("Bearer ", "");
-        return ResponseEntity.ok(listingService.updateListing(token, id, request));
+
+        ListingRequest request = new ListingRequest();
+        request.setProduceName(produceName);
+        request.setCategory(category);
+        request.setQuantity(quantity);
+        request.setUnit(unit);
+        request.setPrice(price);
+        request.setFreshness(freshness);
+        request.setPickupLocation(pickupLocation);
+        request.setAdditionalNotes(additionalNotes);
+
+        return ResponseEntity.ok(listingService.updateListing(token, id, request, photo));
     }
 
     // DELETE listing (soft delete)
