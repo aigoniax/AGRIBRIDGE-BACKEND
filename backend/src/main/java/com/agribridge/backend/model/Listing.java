@@ -23,6 +23,9 @@ public class Listing {
     @Column(name = "photo_url")
     private String photoUrl;
 
+    @Column(columnDefinition = "bytea")
+    private byte[] photo;
+
     @Column(nullable = false)
     private Double quantity;
 
@@ -53,7 +56,6 @@ public class Listing {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    // farmer info (transient - not stored in DB)
     @Transient
     private String farmerName;
 
@@ -62,6 +64,9 @@ public class Listing {
 
     @Transient
     private String farmerLocation;
+
+    @Transient
+    private String photoBase64;
 
     @PrePersist
     public void prePersist() {
@@ -79,6 +84,7 @@ public class Listing {
     public String getProduceName() { return produceName; }
     public String getCategory() { return category; }
     public String getPhotoUrl() { return photoUrl; }
+    public byte[] getPhoto() { return photo; }
     public Double getQuantity() { return quantity; }
     public String getUnit() { return unit; }
     public Double getPrice() { return price; }
@@ -92,12 +98,14 @@ public class Listing {
     public String getFarmerName() { return farmerName; }
     public String getFarmerPhone() { return farmerPhone; }
     public String getFarmerLocation() { return farmerLocation; }
+    public String getPhotoBase64() { return photoBase64; }
 
     public void setId(Long id) { this.id = id; }
     public void setFarmerId(Long farmerId) { this.farmerId = farmerId; }
     public void setProduceName(String produceName) { this.produceName = produceName; }
     public void setCategory(String category) { this.category = category; }
     public void setPhotoUrl(String photoUrl) { this.photoUrl = photoUrl; }
+    public void setPhoto(byte[] photo) { this.photo = photo; }
     public void setQuantity(Double quantity) { this.quantity = quantity; }
     public void setUnit(String unit) { this.unit = unit; }
     public void setPrice(Double price) { this.price = price; }
@@ -111,4 +119,5 @@ public class Listing {
     public void setFarmerName(String farmerName) { this.farmerName = farmerName; }
     public void setFarmerPhone(String farmerPhone) { this.farmerPhone = farmerPhone; }
     public void setFarmerLocation(String farmerLocation) { this.farmerLocation = farmerLocation; }
+    public void setPhotoBase64(String photoBase64) { this.photoBase64 = photoBase64; }
 }
