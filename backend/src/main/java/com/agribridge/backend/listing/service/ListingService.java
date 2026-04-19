@@ -27,13 +27,11 @@ public class ListingService {
     @Autowired
     private JwtUtil jwtUtil;
 
-    // Convert photo bytes to base64 string
     private String toBase64(byte[] photo) {
         if (photo == null) return null;
         return "data:image/png;base64," + Base64.getEncoder().encodeToString(photo);
     }
 
-    // Attach farmer info and photo base64 to listing
     private void enrichListing(Listing listing) {
         userRepository.findById(listing.getFarmerId()).ifPresent(farmer -> {
             listing.setFarmerName(farmer.getFullName());
@@ -77,6 +75,13 @@ public class ListingService {
             return new ListingResponse(false, "User not found", null);
         }
         List<Listing> listings = listingRepository.findByFarmerId(farmer.getId());
+        listings.forEach(this::enrichListing);
+        return new ListingResponse(true, "Listings fetched successfully", listings);
+    }
+
+    // Get all listings for admin moderation (with photo enrichment)
+    public ListingResponse getAllListingsForAdmin() {
+        List<Listing> listings = listingRepository.findAllForAdmin();
         listings.forEach(this::enrichListing);
         return new ListingResponse(true, "Listings fetched successfully", listings);
     }
