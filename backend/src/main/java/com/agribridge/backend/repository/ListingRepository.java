@@ -26,4 +26,7 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
     // Filter by category
     @Query("SELECT l FROM Listing l WHERE l.deletedAt IS NULL AND l.status = 'AVAILABLE' AND l.category = :category")
     List<Listing> findByCategory(@Param("category") String category);
+
+    @Query("SELECT l FROM Listing l WHERE l.deletedAt IS NULL ORDER BY l.postedAt DESC")
+    List<Listing> findAllForAdmin();
 }

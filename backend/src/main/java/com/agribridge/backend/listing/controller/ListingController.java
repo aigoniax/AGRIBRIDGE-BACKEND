@@ -38,6 +38,12 @@ public class ListingController {
         return ResponseEntity.ok(listingService.getMyListings(token));
     }
 
+    // GET all listings for admin moderation
+    @GetMapping("/admin-all")
+    public ResponseEntity<?> getAllListingsForAdmin() {
+        return ResponseEntity.ok(listingService.getAllListingsForAdmin());
+    }
+
     // POST create new listing with photo
     @PostMapping
     public ResponseEntity<?> createListing(
@@ -53,7 +59,6 @@ public class ListingController {
             @RequestParam(value = "photo", required = false) MultipartFile photo) {
 
         String token = authHeader.replace("Bearer ", "");
-
         ListingRequest request = new ListingRequest();
         request.setProduceName(produceName);
         request.setCategory(category);
@@ -63,7 +68,6 @@ public class ListingController {
         request.setFreshness(freshness);
         request.setPickupLocation(pickupLocation);
         request.setAdditionalNotes(additionalNotes);
-
         return ResponseEntity.ok(listingService.createListing(token, request, photo));
     }
 
@@ -83,7 +87,6 @@ public class ListingController {
             @RequestParam(value = "photo", required = false) MultipartFile photo) {
 
         String token = authHeader.replace("Bearer ", "");
-
         ListingRequest request = new ListingRequest();
         request.setProduceName(produceName);
         request.setCategory(category);
@@ -93,7 +96,6 @@ public class ListingController {
         request.setFreshness(freshness);
         request.setPickupLocation(pickupLocation);
         request.setAdditionalNotes(additionalNotes);
-
         return ResponseEntity.ok(listingService.updateListing(token, id, request, photo));
     }
 
