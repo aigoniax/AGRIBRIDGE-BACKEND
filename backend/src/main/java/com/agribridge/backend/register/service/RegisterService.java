@@ -26,19 +26,34 @@ public class RegisterService {
             return new RegisterResponse(false, "Passwords do not match", null, null);
         }
 
+        // Password strength validation
+        String pwd = request.getPassword();
+        if (pwd.length() < 8) {
+            return new RegisterResponse(false, "Password must be at least 8 characters", null, null);
+        }
+        if (!pwd.matches(".*[A-Z].*")) {
+            return new RegisterResponse(false, "Password must contain at least one uppercase letter", null, null);
+        }
+        if (!pwd.matches(".*[0-9].*")) {
+            return new RegisterResponse(false, "Password must contain at least one number", null, null);
+        }
+        if (!pwd.matches(".*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?].*")) {
+            return new RegisterResponse(false, "Password must contain at least one special character", null, null);
+        }
+
         if (userRepository.existsByEmail(request.getEmail())) {
             return new RegisterResponse(false, "Email already exists", null, null);
         }
 
         User user = new User();
-        user.setFullName(request.getFullName());
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setPhone(request.getPhone());
         user.setLocation(request.getLocation());
         user.setRole(request.getRole());
 
-        // BUYERS are auto-approved, FARMERS need admin approval
         if ("BUYER".equalsIgnoreCase(request.getRole())) {
             user.setStatus("APPROVED");
         } else {
