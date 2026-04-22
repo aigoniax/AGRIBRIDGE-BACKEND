@@ -56,6 +56,8 @@ public class UserProfileController {
 
         Map<String, Object> response = new HashMap<>();
         response.put("fullName", u.getFullName() != null ? u.getFullName() : "");
+        response.put("firstName", u.getFirstName() != null ? u.getFirstName() : "");
+        response.put("lastName", u.getLastName() != null ? u.getLastName() : "");
         response.put("email", u.getEmail() != null ? u.getEmail() : "");
         response.put("phone", u.getPhone() != null ? u.getPhone() : "");
         response.put("location", u.getLocation() != null ? u.getLocation() : "");
@@ -81,7 +83,8 @@ public class UserProfileController {
 
         userRepository.updateProfile(
                 email,
-                body.getOrDefault("fullName", optUser.get().getFullName()),
+                body.getOrDefault("firstName", optUser.get().getFirstName()),
+                body.getOrDefault("lastName", optUser.get().getLastName()),
                 body.getOrDefault("phone", optUser.get().getPhone()),
                 body.getOrDefault("location", optUser.get().getLocation())
         );
