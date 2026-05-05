@@ -1,31 +1,43 @@
 package com.agribridge.backend;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
-import jakarta.mail.internet.MimeMessage;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 
 @Service
 public class EmailService {
 
-    @Autowired
-    private JavaMailSender mailSender;
-
-    @Value("${spring.mail.username}")
-    private String fromEmail;
+    @Value("${brevo.api.key}")
+    private String apiKey;
 
     private void sendEmail(String toEmail, String toName, String subject, String htmlContent) {
         try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
-            helper.setFrom(fromEmail, "AgriBridge");
-            helper.setTo(toEmail);
-            helper.setSubject(subject);
-            helper.setText(htmlContent, true);
-            mailSender.send(message);
-            System.out.println("✅ Email sent successfully to: " + toEmail);
+            String json = "{"
+                    + "\"sender\": {\"name\": \"AgriBridge\", \"email\": \"i.ashley0330@gmail.com\"},"
+                    + "\"to\": [{\"email\": \"" + toEmail + "\", \"name\": \"" + toName + "\"}],"
+                    + "\"subject\": \"" + subject + "\","
+                    + "\"htmlContent\": \"" + htmlContent.replace("\"", "\\\"").replace("\n", "") + "\""
+                    + "}";
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://api.brevo.com/v3/smtp/email"))
+                    .header("accept", "application/json")
+                    .header("api-key", apiKey)
+                    .header("content-type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(json))
+                    .build();
+
+            HttpResponse<String> response = HttpClient.newHttpClient()
+                    .send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 201) {
+                System.out.println("✅ Email sent successfully to: " + toEmail);
+            } else {
+                System.err.println("❌ Failed to send email: " + response.body());
+            }
         } catch (Exception e) {
             System.err.println("❌ Failed to send email: " + e.getMessage());
         }
