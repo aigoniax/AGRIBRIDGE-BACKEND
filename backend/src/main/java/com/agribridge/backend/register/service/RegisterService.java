@@ -62,7 +62,10 @@ public class RegisterService {
 
         userRepository.save(user);
 
-        emailService.sendRegistrationPending(user.getEmail(), user.getFullName());
+        // Send email in background thread so it doesn't block the response
+        new Thread(() -> {
+            emailService.sendRegistrationPending(user.getEmail(), user.getFullName());
+        }).start();
 
         return new RegisterResponse(true, "Registration successful", user.getFullName(), user.getEmail());
     }
