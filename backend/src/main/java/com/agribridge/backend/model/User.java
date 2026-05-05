@@ -33,7 +33,12 @@ public class User {
     public Long getId() { return id; }
     public String getFirstName() { return firstName; }
     public String getLastName() { return lastName; }
-    public String getFullName() { return firstName + " " + lastName; }
+    public String getFullName() {
+        if (firstName == null && lastName == null) return "";
+        if (firstName == null) return lastName;
+        if (lastName == null) return firstName;
+        return firstName + " " + lastName;
+    }
     public String getEmail() { return email; }
     public String getPassword() { return password; }
     public String getPhone() { return phone; }
