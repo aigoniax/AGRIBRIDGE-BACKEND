@@ -10,30 +10,29 @@ import java.net.http.HttpResponse;
 @Service
 public class EmailService {
 
-    @Value("${brevo.api.key}")
+    @Value("${resend.api.key}")
     private String apiKey;
 
     private void sendEmail(String toEmail, String toName, String subject, String htmlContent) {
         try {
             String json = "{"
-                    + "\"sender\": {\"name\": \"AgriBridge\", \"email\": \"i.ashley0330@gmail.com\"},"
-                    + "\"to\": [{\"email\": \"" + toEmail + "\", \"name\": \"" + toName + "\"}],"
+                    + "\"from\": \"AgriBridge <onboarding@resend.dev>\","
+                    + "\"to\": [\"" + toEmail + "\"],"
                     + "\"subject\": \"" + subject + "\","
-                    + "\"htmlContent\": \"" + htmlContent.replace("\"", "\\\"").replace("\n", "") + "\""
+                    + "\"html\": \"" + htmlContent.replace("\"", "\\\"").replace("\n", "") + "\""
                     + "}";
 
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("https://api.brevo.com/v3/smtp/email"))
-                    .header("accept", "application/json")
-                    .header("api-key", apiKey)
-                    .header("content-type", "application/json")
+                    .uri(URI.create("https://api.resend.com/emails"))
+                    .header("Authorization", "Bearer " + apiKey)
+                    .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(json))
                     .build();
 
             HttpResponse<String> response = HttpClient.newHttpClient()
                     .send(request, HttpResponse.BodyHandlers.ofString());
 
-            if (response.statusCode() == 201) {
+            if (response.statusCode() == 200 || response.statusCode() == 201) {
                 System.out.println("✅ Email sent successfully to: " + toEmail);
             } else {
                 System.err.println("❌ Failed to send email: " + response.body());
