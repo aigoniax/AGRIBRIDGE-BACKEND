@@ -33,7 +33,8 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     // Count total unread messages for a user across all orders
     @Query("SELECT COUNT(m) FROM Message m WHERE m.senderId != :userId " +
             "AND m.isRead = false AND m.orderId IN " +
-            "(SELECT o.id FROM Order o WHERE o.buyerId = :userId OR o.listingId IN " +
-            "(SELECT l.id FROM Listing l WHERE l.farmerId = :userId))")
+            "(SELECT o.id FROM Order o WHERE (o.buyerId = :userId OR o.listingId IN " +
+            "(SELECT l.id FROM Listing l WHERE l.farmerId = :userId)) " +
+            "AND o.status != 'CANCELLED')")
     Long countTotalUnread(@Param("userId") Long userId);
 }
